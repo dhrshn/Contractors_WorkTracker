@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor Work-Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>Contractor Work-Tracker</h1>
+            </div>
+            <div class="user-info">
+                <span id="welcomeMsg">Welcome, Guest</span>
+                <button id="logoutBtn" class="btn btn-danger" onclick="logout()" style="display: none;">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Section -->
+    <section id="loginSection" class="login-container">
+        <div class="login-form">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Contractor Work-Tracker Login</h2>
+            <div id="loginMessage"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="userType">Login Type</label>
+                    <select id="userType" required>
+                        <option value="">Select Login Type</option>
+                        <option value="admin">Admin</option>
+                        <option value="employee">Employee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 6px; font-size: 13px;">
+                <strong>Demo Credentials:</strong><br>
+                Admin: admin / admin123<br>
+                Employee: emp001 / emp123
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboardSection" class="hidden">
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-content">
+                <div class="nav-item active" onclick="showSection('dashboard')">Dashboard</div>
+                <div class="nav-item admin-only" onclick="showSection('clients')">Clients</div>
+                <div class="nav-item admin-only" onclick="showSection('sites')">Sites</div>
+                <div class="nav-item admin-only" onclick="showSection('employees')">Employees</div>
+                <div class="nav-item" onclick="showSection('attendance')">Attendance</div>
+                <div class="nav-item admin-only" onclick="showSection('billing')">Billing</div>
+                <div class="nav-item admin-only" onclick="showSection('documents')">Documents</div>
+                <div class="nav-item" onclick="showSection('profile')">Profile</div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <!-- Dashboard Overview -->
+            <div id="dashboard" class="dashboard active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSites">0</div>
+                        <div class="stat-label">Active Sites</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEmployees">0</div>
+                        <div class="stat-label">Active Employees</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayAttendance">0</div>
+                        <div class="stat-label">Today's Attendance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingBills">0</div>
+                        <div class="stat-label">Pending Bills</div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h3>Recent Activities</h3>
+                        <ul id="recentActivities">
+                            <li>No recent activities</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Quick Actions</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button class="btn btn-primary admin-only" onclick="openModal('attendanceModal')">Mark Attendance</button>
+                            <button class="btn btn-success admin-only" onclick="openModal('billModal')">Create Bill</button>
+                            <button class="btn btn-warning admin-only" onclick="openModal('paymentModal')">Record Payment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Management -->
+            <div id="clients" class="dashboard admin-only">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Client Management</h2>
+                        <button class="btn btn-primary" onclick="openModal('clientModal')">Add New Client</button>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Client Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sites Management -->
+            <div id="sites" class="dashboard admin-only">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Site Management</h2>
+                        <button class="btn btn-primary" onclick="openModal('siteModal')">Add New Site</button>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Site Name</th>
+                                    <th>Client</th>
+                                    <th>Location</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sitesTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employees Management -->
+            <div id="employees" class="dashboard admin-only">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Employee Management</h2>
+                        <button class="btn btn-primary" onclick="openModal('employeeModal')">Add New Employee</button>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Trade/Skill</th>
+                                    <th>Daily Wage</th>
+                                    <th>Balance</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Management -->
+            <div id="attendance" class="dashboard">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Attendance Management</h2>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="date" id="attendanceDate" class="btn" style="padding: 8px;">
+                            <button class="btn btn-primary admin-only" onclick="openModal('attendanceModal')">Mark Attendance</button>
+                        </div>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Site</th>
+                                    <th>Date</th>
+                                    <th>In Time</th>
+                                    <th>Out Time</th>
+                                    <th>Hours</th>
+                                    <th>Overtime</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Management -->
+            <div id="billing" class="dashboard admin-only">
+                <div class="grid" style="margin-bottom: 30px;">
+                    <div class="card">
+                        <h3>Billing Summary</h3>
+                        <ul>
+                            <li><strong>Total Bills Raised:</strong> ₹<span id="totalBillsRaised">0</span></li>
+                            <li><strong>Payments Received:</strong> ₹<span id="totalPaymentsReceived">0</span></li>
+                            <li><strong>Pending Amount:</strong> ₹<span id="totalPendingAmount">0</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Bills Management</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="openModal('billModal')">Raise New Bill</button>
+                            <button class="btn btn-success" onclick="openModal('paymentModal')">Record Payment</button>
+                        </div>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bill No.</th>
+                                    <th>Client</th>
+                                    <th>Site</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Management -->
+            <div id="documents" class="dashboard admin-only">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Document Management</h2>
+                        <button class="btn btn-primary" onclick="openModal('documentModal')">Upload Document</button>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Type</th>
+                                    <th>Site</th>
+                                    <th>Upload Date</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="documentsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Management -->
+            <div id="profile" class="dashboard">
+                <div class="grid">
+                    <div class="card profile-card">
+                        <div class="profile-avatar">
+                            <span id="profileInitials">U</span>
+                        </div>
+                        <h2 id="profileName">User Name</h2>
+                        <p><strong>Role:</strong> <span id="profileRole">-</span></p>
+                        <p><strong>Phone:</strong> <span id="profilePhone">-</span></p>
+                        <div class="employee-only">
+                            <p><strong>Daily Wage Rate:</strong> ₹<span id="profileWageRate">0</span></p>
+                            <p><strong>This Month Earnings:</strong> ₹<span id="profileMonthEarnings">0</span></p>
+                            <p><strong>Overtime Earnings:</strong> ₹<span id="profileOvertimeEarnings">0</span></p>
+                            <p><strong>Advances Received:</strong> ₹<span id="profileAdvances">0</span></p>
+                            <p><strong>Current Balance:</strong> ₹<span id="profileBalance">0</span></p>
+                            <p><strong>Last Payment:</strong> <span id="profileLastPayment">N/A</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Update Profile</h3>
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label for="profileFullName">Full Name</label>
+                                <input type="text" id="profileFullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profilePhoneNumber">Phone Number</label>
+                                <input type="tel" id="profilePhoneNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profileEmail">Email</label>
+                                <input type="email" id="profileEmail">
+                            </div>
+                            <div class="form-group employee-only">
+                                <label for="profileTrade">Trade/Skill</label>
+                                <input type="text" id="profileTrade">
+                            </div>
+                            <div class="form-group employee-only">
+                                <label for="profileWage">Daily Wage Rate (₹)</label>
+                                <input type="number" id="profileWage" step="0.01">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    
+    <!-- Client Modal -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Client</h2>
+            <form id="clientForm">
+                <div class="form-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientContact">Contact Person</label>
+                    <input type="text" id="clientContact" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientPhone">Phone Number</label>
+                    <input type="tel" id="clientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">Email</label>
+                    <input type="email" id="clientEmail">
+                </div>
+                <div class="form-group">
+                    <label for="clientAddress">Address</label>
+                    <textarea id="clientAddress" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Client</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Site Modal -->
+    <div id="siteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Site</h2>
+            <form id="siteForm">
+                <div class="form-group">
+                    <label for="siteName">Site Name</label>
+                    <input type="text" id="siteName" required>
+                </div>
+                <div class="form-group">
+                    <label for="siteClient">Select Client</label>
+                    <select id="siteClient" required>
+                        <option value="">Select Client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="siteLocation">Location</label>
+                    <input type="text" id="siteLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="siteStartDate">Start Date</label>
+                    <input type="date" id="siteStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="siteEndDate">Expected End Date</label>
+                    <input type="date" id="siteEndDate">
+                </div>
+                <div class="form-group">
+                    <label for="siteScopeWork">Scope of Work</label>
+                    <textarea id="siteScopeWork"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Site</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Employee</h2>
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label for="employeeName">Employee Name</label>
+                    <input type="text" id="employeeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeePhone">Phone Number</label>
+                    <input type="tel" id="employeePhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeEmail">Email</label>
+                    <input type="email" id="employeeEmail">
+                </div>
+                <div class="form-group">
+                    <label for="employeeTrade">Trade/Skill</label>
+                    <input type="text" id="employeeTrade" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeWage">Daily Wage Rate (₹)</label>
+                    <input type="number" id="employeeWage" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeUsername">Username</label>
+                    <input type="text" id="employeeUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeePassword">Password</label>
+                    <input type="password" id="employeePassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Employee</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attendance Modal -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Mark Attendance</h2>
+            <form id="attendanceForm">
+                <div class="form-group">
+                    <label for="attendanceEmployee">Select Employee</label>
+                    <select id="attendanceEmployee" required>
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="attendanceSite">Select Site</label>
+                    <select id="attendanceSite" required>
+                        <option value="">Select Site</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="attendanceMarkDate">Date</label>
+                    <input type="date" id="attendanceMarkDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="attendanceInTime">In Time</label>
+                    <input type="time" id="attendanceInTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="attendanceOutTime">Out Time</label>
+                    <input type="time" id="attendanceOutTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="attendanceStatus">Status</label>
+                    <select id="attendanceStatus" required>
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                        <option value="half_day">Half Day</option>
+                        <option value="leave">Leave</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Mark Attendance</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div id="billModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Raise New Bill</h2>
+            <form id="billForm">
+                <div class="form-group">
+                    <label for="billClient">Select Client</label>
+                    <select id="billClient" required>
+                        <option value="">Select Client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="billSite">Select Site</label>
+                    <select id="billSite" required>
+                        <option value="">Select Site</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="billAmount">Amount (₹)</label>
+                    <input type="number" id="billAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="billDate">Bill Date</label>
+                    <input type="date" id="billDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="billDescription">Description</label>
+                    <textarea id="billDescription" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Raise Bill</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Record Payment</h2>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="paymentBill">Select Bill</label>
+                    <select id="paymentBill" required>
+                        <option value="">Select Bill</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="paymentAmount">Payment Amount (₹)</label>
+                    <input type="number" id="paymentAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="paymentDate">Payment Date</label>
+                    <input type="date" id="paymentDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="cash">Cash</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="upi">UPI</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Record Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Document Modal -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Upload Document</h2>
+            <form id="documentForm">
+                <div class="form-group">
+                    <label for="documentFile">Select File</label>
+                    <input type="file" id="documentFile" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentType">Document Type</label>
+                    <select id="documentType" required>
+                        <option value="">Select Type</option>
+                        <option value="bill">Bill</option>
+                        <option value="receipt">Receipt</option>
+                        <option value="drawing">Drawing</option>
+                        <option value="blueprint">Blueprint</option>
+                        <option value="photo">Photo</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="documentSite">Related Site</label>
+                    <select id="documentSite">
+                        <option value="">Select Site (Optional)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="documentDescription">Description</label>
+                    <textarea id="documentDescription"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload Document</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
